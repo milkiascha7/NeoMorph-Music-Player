@@ -1,22 +1,48 @@
-import { StyleSheet, Text, View, TextInput, FlatList, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, View, TextInput, FlatList, Image, TouchableOpacity,ScrollView } from 'react-native'
+import React, { useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { AntDesign, Entypo , Ionicons, Feather } from '@expo/vector-icons'
 import playListData from '../assets/data/playListData'
 import favoriteListData from '../assets/data/favoriteListData'
+import topPlayedListData from '../assets/data/TopPlayed'
 import BottomPlay from '../components/BottomPlay'
+
 
 
 const MainScreen = ({ navigation }) => {
 
-  const renderPlayListItem = ({ item}) => {
+  const [title, setTitle] = useState("")
+  const [subTitle, setSubTitle] = useState("")
+
+  const renderPlayListItem = ({ item }) => {
     return(
-      <TouchableOpacity 
-        style={[styles.playListWrapper,
-            { marginLeft: item.id === 1 ? 10 : 0} ]}
-            key={item.id}
-            onPress={() => navigation.navigate('PlayScreen', { item: item })}    
-        >
+      <View>
+        <TouchableOpacity 
+          style={[styles.playListWrapper,
+              { marginLeft: item.id === 1 ? 10 : 0} ]}
+              key={item.id}
+              onPress={() => navigation.navigate('PlayScreen', { item: item })}    
+          >
+          <Image 
+            source={item.image}
+            style={styles.playListImageWrapper}
+          />
+          <View style={[ styles.textContainer,{ marginLeft: item.id === 1 ? 20 : 0}  ]}>
+            <Text style={styles.itemTitle}>{item.title}</Text>
+            <Text style={styles.itemSubTitle}>{item.subTitle}</Text>
+          </View>
+          </TouchableOpacity>
+          
+        </View>
+    )
+  }
+  const renderFavoriteListItem = ({ item }) => {
+    return(
+      <TouchableOpacity style={[styles.playListWrapper,
+        { marginLeft: item.id === 1 ? 10 : 0} ]}
+        key={item.id}
+        onPress={() => navigation.navigate('PlayScreen', { item: item })}
+      >
         <Image 
           source={item.image}
           style={styles.playListImageWrapper}
@@ -28,7 +54,8 @@ const MainScreen = ({ navigation }) => {
       </TouchableOpacity>
     )
   }
-  const renderFavoriteListItem = ({ item}) => {
+
+  const renderTopPlayedListItem = ({ item }) => {
     return(
       <TouchableOpacity style={[styles.playListWrapper,
         { marginLeft: item.id === 1 ? 10 : 0} ]}
@@ -49,62 +76,78 @@ const MainScreen = ({ navigation }) => {
 
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView>
-        <Text style={{ display: 'none'}}>MainScreen</Text>
-      </SafeAreaView>
+    
+  <View style={styles.container}>
+    <ScrollView>
+        <SafeAreaView>
+          <Text style={{ display: 'none'}}>MainScreen</Text>
+        </SafeAreaView>
 
-      <View style={styles.mainBody}>
-        <Text style={styles.mainTitle}>Library</Text>
+        <View style={styles.mainBody}>
+          <Text style={styles.mainTitle}>Library</Text>
 
-        <View style={styles.searchContainer}>
+          <View style={styles.searchContainer}>
 
-          <AntDesign name="search1" size={24} color="gray" />
-          <TextInput placeholder='Song or Artist' type="text" style={{marginLeft: 15}} />
+            <AntDesign name="search1" size={24} color="gray" />
+            <TextInput placeholder='Song or Artist' type="text" style={{marginLeft: 15}} />
 
+          </View>
+
+          
+          { /* playlistContainer*/}
+          <View style={styles.playlistContainer}>
+            <Text style={styles.topic}>Playlists</Text>
+            <FlatList 
+              data={playListData}
+              renderItem={renderPlayListItem}
+              keyExtractor={item => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+
+          { /*favoriteContainer*/}
+          <View style={styles.favoriteContainer}>
+            <Text style={styles.topic}>Favorite</Text>
+            <FlatList 
+              data={favoriteListData}
+              renderItem={renderFavoriteListItem}
+              keyExtractor={item => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
+
+
+          { /* topPlayedContainer 4 */}
+          <View style={styles.favoriteContainer}>
+            <Text style={styles.topic}>Top 25 Played</Text>
+            <FlatList 
+              data={topPlayedListData}
+              renderItem={renderTopPlayedListItem}
+              keyExtractor={item => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+            />
+          </View>
         </View>
-
-        <View style={styles.playlistContainer}>
-          <Text style={styles.topic}>Playlists</Text>
-          <FlatList 
-            data={playListData}
-            renderItem={renderPlayListItem}
-            keyExtractor={item => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
-
-
-        <View style={styles.playlistContainer}>
-          <Text style={styles.topic}>Favorite</Text>
-          <FlatList 
-            data={favoriteListData}
-            renderItem={renderFavoriteListItem}
-            keyExtractor={item => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
-        </View>
+        
+        </ScrollView>
+        <BottomPlay subTitle={subTitle} title={title} />
       </View>
-
-      <BottomPlay />
-    </View>
   )
 }
 
 export default MainScreen
 
 const styles = StyleSheet.create({
-  mainTitle:{
-    marginTop: -20,
-  },
   mainBody: {
     margin: 0
   },
   mainTitle:{
     fontSize: 40,
     marginLeft: 20,
+    marginTop: -20,
     color: "#7B9BFF",
     fontWeight: '700'
   },
@@ -119,6 +162,11 @@ const styles = StyleSheet.create({
   },
   playlistContainer:{
     marginTop: 20, 
+  },
+  favoriteContainer:{
+    marginBottom: 20,
+    marginTop: 20,
+    backgroundColor: "linear-gradient(180deg, rgba(139,167,32,0) 0%, rgba(255,255,255,1) 100%)"
   },
   topic:{
     marginBottom: 20,
